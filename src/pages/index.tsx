@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import Point, { PointProps } from "../components/Point";
 import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
@@ -12,37 +13,14 @@ const Home: NextPage = () => {
   const [W, setW] = useState(0);
   const [P, setP] = useState(0);
   const [R, setR] = useState(0);
-  const [offset, setOffset] = useState(10);
+  const [offset, setOffset] = useState(100);
   const [totalLines, setTotalLines] = useState(1);
-  const [lineHeight, setLineHeight] = useState(10);
-  const [cubePoints, setCubePoints] = useState([[]] as GeneratePointProps[][]);
+  const [lineHeight, setLineHeight] = useState(2);
+  const [cubePoints, setCubePoints] = useState([] as GeneratePointProps[]);
 
   const LINES = 4;
 
-  interface PointProps {
-    X: number;
-    Y: number;
-    Z: number;
-    W: number;
-    P: number;
-    R: number;
-    order: number;
-  }
-
   type GeneratePointProps = Omit<PointProps, "order">;
-
-  function Point({ order, X, Y, Z, W, P, R }: PointProps) {
-    return (
-      <div>
-        {`P[${order}]{
-      GP1:
-     UF : 3, UT : 3,		CONFIG : 'N U T, 0, 0, 0',
-     X =  ${X}  mm,	Y =   ${Y}  mm,	Z =     ${Z}  mm,
-     W =      ${W} deg,	P =     ${P} deg,	R =    ${R} deg
-   };`}
-      </div>
-    );
-  }
 
   function handlePointsChange(
     setFunction: any,
@@ -52,32 +30,43 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
-    let heightOffset = Z;
-    const myArray: GeneratePointProps[][] = Array.from({
-      length: totalLines,
-    }).map((_, line) => {
-      line > 0 && (heightOffset += lineHeight);
-      return Array.from({ length: LINES }).map((_, point) => {
-        if (point == 0)
-          return { X: X, Y: Y, Z: heightOffset, W: W, P: P, R: R };
-        if (point == 1)
-          return { X: X + offset, Y: Y, Z: heightOffset, W: W, P: P, R: R };
-        if (point == 2)
-          return {
-            X: X + offset,
-            Y: Y + offset,
-            Z: heightOffset,
-            W: W,
-            P: P,
-            R: R,
-          };
-        if (point == 3)
-          return { X: X, Y: Y + offset, Z: heightOffset, W: W, P: P, R: R };
+    function generatePoints(): GeneratePointProps[] {
+      let heightOffset = Z;
+      const myArray = [] as GeneratePointProps[];
+      Array.from({
+        length: totalLines,
+      }).map((_, line) => {
+        line > 0 && (heightOffset += lineHeight);
 
-        return {} as GeneratePointProps;
+        const point = Array.from({ length: LINES }).map((_, point) => {
+          if (point == 0)
+            return { X: X, Y: Y, Z: heightOffset, W: W, P: P, R: R };
+          if (point == 1)
+            return { X: X + offset, Y: Y, Z: heightOffset, W: W, P: P, R: R };
+          if (point == 2)
+            return {
+              X: X + offset,
+              Y: Y + offset,
+              Z: heightOffset,
+              W: W,
+              P: P,
+              R: R,
+            };
+          if (point == 3)
+            return { X: X, Y: Y + offset, Z: heightOffset, W: W, P: P, R: R };
+
+          return {} as GeneratePointProps;
+        });
+
+        point.forEach((item) => {
+          myArray.push(item);
+        });
       });
-    });
-    setCubePoints(myArray);
+      return myArray;
+    }
+
+    const newPoints = generatePoints();
+    setCubePoints(newPoints);
   }, [X, Y, Z, W, P, R, offset, totalLines, lineHeight]);
 
   return (
@@ -131,9 +120,9 @@ const Home: NextPage = () => {
         </div>
 
         <div>
-          <label htmlFor="size">Tamanho do lado:</label>
+          <label htmlFor="offset">Tamanho do lado:</label>
           <input
-            name="size"
+            name="offset"
             value={offset}
             type="number"
             onChange={(ev) => handlePointsChange(setOffset, ev)}
@@ -158,8 +147,7 @@ const Home: NextPage = () => {
         </div>
       </main>
       {cubePoints.map((item, index) => {
-        <Point order={index} {...item[0]} />;
-        console.log(item);
+        return <Point key={index} order={++index} {...item} />;
       })}
     </>
   );
