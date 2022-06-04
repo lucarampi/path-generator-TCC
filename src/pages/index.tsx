@@ -3,7 +3,6 @@ import Head from "next/head";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Point, { PointProps } from "../components/Point";
-import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
   const [points, setPoints] = useState("");
@@ -16,6 +15,9 @@ const Home: NextPage = () => {
   const [offset, setOffset] = useState(100);
   const [totalLines, setTotalLines] = useState(1);
   const [lineHeight, setLineHeight] = useState(2);
+  const [torchDO, setTorchDO] = useState(10);
+  const [waitTime, setWaitTime] = useState(2);
+
   const [cubePoints, setCubePoints] = useState([] as GeneratePointProps[]);
 
   const LINES = 4;
@@ -71,84 +73,132 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <main>
-        <div>
-          <label htmlFor="X">X:</label>
-          <input
-            name="X"
-            value={X}
-            type="number"
-            onChange={(ev) => handlePointsChange(setX, ev)}
-          ></input>
-          <label htmlFor="Y">Y:</label>
-          <input
-            name="Y"
-            value={Y}
-            type="number"
-            onChange={(ev) => handlePointsChange(setY, ev)}
-          ></input>
-          <label htmlFor="Z">Z:</label>
-          <input
-            name="Z"
-            value={Z}
-            type="number"
-            onChange={(ev) => handlePointsChange(setZ, ev)}
-          ></input>
-        </div>
-        <div>
-          <label htmlFor="W">W:</label>
-          <input
-            name="W"
-            value={W}
-            type="number"
-            onChange={(ev) => handlePointsChange(setW, ev)}
-          ></input>
-          <label htmlFor="P">P:</label>
-          <input
-            name="P"
-            value={P}
-            type="number"
-            onChange={(ev) => handlePointsChange(setP, ev)}
-          ></input>
-          <label htmlFor="R">R:</label>
-          <input
-            name="R"
-            value={R}
-            type="number"
-            onChange={(ev) => handlePointsChange(setR, ev)}
-          ></input>
-        </div>
+      <div className="wrapper">
+        <main className="container w-full mt-5 flex flex-row flex-wrap gap-7">
+          <section>
+            <label htmlFor="X">
+              <span>X: </span>
+              <input
+                name="X"
+                value={X}
+                type="number"
+                onChange={(ev) => handlePointsChange(setX, ev)}
+              ></input>
+              <span></span>
+            </label>
+            <label htmlFor="Y">
+              <span>Y: </span>
+              <input
+                name="Y"
+                value={Y}
+                type="number"
+                onChange={(ev) => handlePointsChange(setY, ev)}
+              ></input>
+              <span></span>
+            </label>
+            <label htmlFor="Z">
+              <span>Z: </span>
+              <input
+                name="Z"
+                value={Z}
+                type="number"
+                onChange={(ev) => handlePointsChange(setZ, ev)}
+              ></input>
+              <span></span>
+            </label>
 
-        <div>
-          <label htmlFor="offset">Tamanho do lado:</label>
+            <label htmlFor="W">
+              <span>W: </span>
+              <input
+                name="W"
+                value={W}
+                type="number"
+                onChange={(ev) => handlePointsChange(setW, ev)}
+              ></input>
+              <span></span>
+            </label>
+            <label htmlFor="P">
+              <span>P: </span>
+              <input
+                name="P"
+                value={P}
+                type="number"
+                onChange={(ev) => handlePointsChange(setP, ev)}
+              ></input>
+              <span></span>
+            </label>
+            <label htmlFor="R">
+              <span>R: </span>
+              <input
+                name="R"
+                value={R}
+                type="number"
+                onChange={(ev) => handlePointsChange(setR, ev)}
+              ></input>
+              <span></span>
+            </label>
+
+            <label htmlFor="offset">
+              <span>Comprimento: </span>
+              <input
+                name="offset"
+                value={offset}
+                type="number"
+                onChange={(ev) => handlePointsChange(setOffset, ev)}
+              ></input>
+            </label>
+
+            <label htmlFor="lineHeight">
+              <span>Altura do cordão: </span>
+              <input
+                name="lineHeight"
+                value={lineHeight}
+                type="number"
+                onChange={(ev) => handlePointsChange(setLineHeight, ev)}
+              ></input>
+              <span></span>
+            </label>
+
+            <label htmlFor="totalLines">
+              <span>Quantidade de camadas: </span>
+              <input
+                name="totalLines"
+                value={totalLines}
+                type="number"
+                onChange={(ev) => handlePointsChange(setTotalLines, ev)}
+              ></input>
+            </label>
+
+            <span>Altura final: {totalLines * lineHeight}mm</span>
+          </section>
+
+          <article>
+            <section>
+              {cubePoints.map((item, index) => {
+                return <Point key={index} order={++index} {...item} />;
+              })}
+            </section>
+            {/* <section>
+          <h1>Programa</h1>
+          <label htmlFor="torchDO">Saída digital da tocha: </label>
           <input
-            name="offset"
-            value={offset}
+            name="torchDO"
+            value={torchDO}
             type="number"
-            onChange={(ev) => handlePointsChange(setOffset, ev)}
+            onChange={(ev) => handlePointsChange(setTorchDO, ev)}
           ></input>
 
-          <label htmlFor="totalLines">Quantidade de camadas:</label>
+          <label htmlFor="waitTime">Wait: </label>
           <input
-            name="totalLines"
-            value={totalLines}
+            name="waitTime"
+            value={waitTime}
             type="number"
-            onChange={(ev) => handlePointsChange(setTotalLines, ev)}
+            onChange={(ev) => handlePointsChange(setWaitTime, ev)}
           ></input>
-
-          <label htmlFor="lineHeight">Altura do cordão de solda:</label>
-          <input
-            name="lineHeight"
-            value={lineHeight}
-            type="number"
-            onChange={(ev) => handlePointsChange(setLineHeight, ev)}
-          ></input>
-          <span>Altura final: {totalLines * lineHeight}mm</span>
-        </div>
-      </main>
-      {cubePoints.map((item, index) => {
-        return <Point key={index} order={++index} {...item} />;
-      })}
+        </section> */}
+          </article>
+        </main>
+      </div>
     </>
   );
 };
