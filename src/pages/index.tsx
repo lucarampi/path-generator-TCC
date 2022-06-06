@@ -36,42 +36,16 @@ const Home: NextPage = () => {
 
   type GeneratePointProps = PointProps;
 
-  const programSchema = [
-    `/PROG  `,
-    `/ATTR`,
-    `OWNER		= MNEDITOR`,
-    `COMMENT		= ""`,
-    `PROG_SIZE	= `,
-    `CREATE		= DATE 22-06-06  TIME 15:30:00`,
-    `MODIFIED	= DATE 22-06-06  TIME 15:35:00`,
-    `FILE_NAME	= `,
-    `VERSION		= 0`,
-    `LINE_COUNT	= `,
-    `MEMORY_SIZE	= `,
-    `PROTECT		= READ_WRITE`,
-    `TCD:  STACK_SIZE	= 0,
-TASK_PRIORITY	= 50,
-TIME_SLICE	= 0,
-BUSY_LAMP_OFF	= 0,
-ABORT_REQUEST	= 0,
-PAUSE_REQUEST	= 0`,
-    `DEFAULT_GROUP	= 1,*,*,*,*`,
-    `CONTROL_CODE	= 00000000 00000000;`,
-    `/APPL`,
-    `ARC Welding Equipment : 1,*,*,*,*;`,
-    `/MN`,
-  ];
-
   function handlePointsChange(
-    setFunction: any,
+    setFunction:  React.Dispatch<React.SetStateAction<any>>,
     ev: React.ChangeEvent<HTMLInputElement>
   ) {
     setFunction(Number(ev.target.value));
   }
 
-  function printLines(isCO2: boolean) {
+  function generateHTMLLines(linesArray: PointProps[][]){
     let lineCounter = 1;
-    const lines = pointsArray.map((currLine) => {
+    let codeHTML = linesArray.map((currLine) => {
       return currLine.map((item, index) => {
         if (index == 0) {
           return (
@@ -115,9 +89,13 @@ PAUSE_REQUEST	= 0`,
         );
       });
     });
+    return codeHTML
+  }
 
-    console.log(lines);
-    return lines;
+  function printLines(isCO2: boolean) {
+    
+    const linesHTML = generateHTMLLines(pointsArray) 
+    return linesHTML;
   }
 
   useEffect(() => {
@@ -229,7 +207,7 @@ PAUSE_REQUEST	= 0`,
 
     const newPoints = generatePoints();
     setCubePoints(newPoints);
-  }, [X, Y, Z, W, P, R, offset, totalLines, lineHeight, userToolCO2, userToolTorch, isCO2, pointsArray]);
+  }, [X, Y, Z, W, P, R, offset, totalLines, lineHeight, userToolCO2, userToolTorch, isCO2]);
 
   return (
     <>
@@ -404,7 +382,7 @@ PAUSE_REQUEST	= 0`,
           <p>PROTECT = READ_WRITE;</p>
           <p>
             TCD: STACK_SIZE = 0, TASK_PRIORITY = 50, TIME_SLICE = 0,
-            BUSY_LAMP_OFF = 0, ABORT_REQUEST = 0, PAUSE_REQUEST = 0
+            BUSY_LAMP_OFF = 0, ABORT_REQUEST = 0, PAUSE_REQUEST = 0;
           </p>
           <p>DEFAULT_GROUP = 1,*,*,*,*;</p>
           <p>CONTROL_CODE = 00000000 00000000;</p>
