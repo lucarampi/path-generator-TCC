@@ -1,15 +1,15 @@
-
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { json } from "stream/consumers";
 import Input from "../components/Input";
 import Point, { PointProps } from "../components/Point";
 
 const Home: NextPage = () => {
-  const [pointsConvertedToString, setPointsConvertedToString] = useState<
-    Array<string>
-  >([]);
+  const [pointsArray, setPointsArray] = useState<Array<GeneratePointProps[]>>(
+    []
+  );
   const [programName, setProgramName] = useState("PROGRAM1");
   const [X, setX] = useState(0);
   const [Y, setY] = useState(0);
@@ -21,7 +21,9 @@ const Home: NextPage = () => {
   const [totalLines, setTotalLines] = useState(1);
   const [lineHeight, setLineHeight] = useState(2);
   const [torchDO, setTorchDO] = useState(10);
-  const [userTool, setUserTool] = useState(1);
+  const [userToolCO2, setUserToolCO2] = useState(1);
+  const [userToolTorch, setUserToolTorch] = useState(1);
+  const [isCO2, setIsCO2] = useState(false);
   const [userFrame, setUserFrame] = useState(1);
   const [waitTime, setWaitTime] = useState(2);
   const [speedMMPerSec, setSpeedPerMM] = useState(150);
@@ -32,7 +34,7 @@ const Home: NextPage = () => {
   const APPROACH_STEPS = 2;
   const APPROACH_OFFSET = 50;
 
-  type GeneratePointProps = Omit<PointProps, "order">;
+  type GeneratePointProps = PointProps;
 
   const programSchema = [
     `/PROG  `,
@@ -67,17 +69,70 @@ PAUSE_REQUEST	= 0`,
     setFunction(Number(ev.target.value));
   }
 
+  function printLines(isCO2: boolean) {
+    let lineCounter = 1;
+    const lines = pointsArray.map((currLine) => {
+      return currLine.map((item, index) => {
+        if (index == 0) {
+          return (
+            <>
+              <p key={lineCounter++}>
+                {lineCounter}: {`P[${item.order}] ${speedMMPerSec}mm/sec FINE`}{" "}
+                ;
+              </p>
+              <p key={lineCounter++}>
+                {lineCounter}: {`DO[${torchDO}]=ON`} ;
+              </p>
+              <p key={lineCounter++}>
+                {lineCounter}: {`WAIT ${waitTime}.00(sec)`} ;
+              </p>
+            </>
+          );
+        }
+        if (index == 5)
+          return (
+            <>
+              <p key={lineCounter++}>
+                {lineCounter}:{" "}
+                {`P[${item.order - 4}] ${speedMMPerSec}mm/sec FINE`} ;
+              </p>
+              <p key={lineCounter++}>
+                {lineCounter}: {`DO[${torchDO}]=OFF`} ;
+              </p>
+              <p key={lineCounter++}>
+                {lineCounter}: {`WAIT ${waitTime}.00(sec)`} ;
+              </p>
+              <p key={lineCounter++}>
+                {lineCounter}: {`P[${item.order}] ${speedMMPerSec}mm/sec FINE`}{" "}
+                ;
+              </p>
+            </>
+          );
+        return (
+          <p key={lineCounter++}>
+            {lineCounter}: {`P[${item.order}] ${speedMMPerSec}mm/sec FINE`} ;
+          </p>
+        );
+      });
+    });
+
+    console.log(lines);
+    return lines;
+  }
+
   useEffect(() => {
     function generatePoints(): GeneratePointProps[] {
       let heightOffset = Z;
-      const myArray = [] as GeneratePointProps[];
+      let myArray = [] as GeneratePointProps[];
+      let testeArray = [] as Array<GeneratePointProps[]>;
+      let counter = 0;
       Array.from({
         length: totalLines,
       }).map((_, line) => {
         line > 0 && (heightOffset += lineHeight);
-
         const point = Array.from({ length: LINES + APPROACH_STEPS }).map(
           (_, point) => {
+            counter++;
             if (point == 0)
               return {
                 X: X,
@@ -86,11 +141,38 @@ PAUSE_REQUEST	= 0`,
                 W: W,
                 P: P,
                 R: R,
+                order: counter,
+                userToolTorch,
+                userToolCO2,
+                isCO2,
               };
             if (point == 1)
-              return { X: X, Y: Y, Z: heightOffset, W: W, P: P, R: R };
+              return {
+                X: X,
+                Y: Y,
+                Z: heightOffset,
+                W: W,
+                P: P,
+                R: R,
+                order: counter,
+                userToolTorch,
+                userToolCO2,
+                isCO2,
+              };
             if (point == 2)
-              return { X: X + offset, Y: Y, Z: heightOffset, W: W, P: P, R: R };
+              return {
+                X: X + offset,
+                Y: Y,
+                Z: heightOffset,
+                W: W,
+                P: P,
+                R: R,
+                order: counter,
+                userToolTorch,
+                userToolCO2,
+                isCO2,
+              };
+
             if (point == 3)
               return {
                 X: X + offset,
@@ -99,19 +181,38 @@ PAUSE_REQUEST	= 0`,
                 W: W,
                 P: P,
                 R: R,
+                order: counter,
+                userToolTorch,
+                userToolCO2,
+                isCO2,
               };
             if (point == 4)
-              return { X: X, Y: Y + offset, Z: heightOffset, W: W, P: P, R: R };
-            if (point == 5)
               return {
                 X: X,
                 Y: Y + offset,
+                Z: heightOffset,
+                W: W,
+                P: P,
+                R: R,
+                order: counter,
+                userToolTorch,
+                userToolCO2,
+                isCO2,
+              };
+
+            if (point == 5)
+              return {
+                X: X,
+                Y: Y,
                 Z: heightOffset + APPROACH_OFFSET,
                 W: W,
                 P: P,
                 R: R,
+                order: counter,
+                userToolTorch,
+                userToolCO2,
+                isCO2,
               };
-
             return {} as GeneratePointProps;
           }
         );
@@ -119,13 +220,16 @@ PAUSE_REQUEST	= 0`,
         point.forEach((item) => {
           myArray.push(item);
         });
+        testeArray.push(point);
       });
+      setPointsArray(testeArray);
+      console.log(pointsArray);
       return myArray;
     }
 
     const newPoints = generatePoints();
     setCubePoints(newPoints);
-  }, [X, Y, Z, W, P, R, offset, totalLines, lineHeight]);
+  }, [X, Y, Z, W, P, R, offset, totalLines, lineHeight, userToolCO2, userToolTorch, isCO2, pointsArray]);
 
   return (
     <>
@@ -224,30 +328,67 @@ PAUSE_REQUEST	= 0`,
           <article>
             <section className="max-full overflow-auto">
               {cubePoints.map((item, index) => {
-                return <Point key={index} order={++index} {...item} />;
+                return <Point key={index} {...item} />;
               })}
             </section>
-            {/* <section>
-          <h1>Programa</h1>
-          <label htmlFor="torchDO">Saída digital da tocha: </label>
-          <input
-            name="torchDO"
-            value={torchDO}
-            type="number"
-            onChange={(ev) => handlePointsChange(setTorchDO, ev)}
-          ></input>
-
-          <label htmlFor="waitTime">Wait: </label>
-          <input
-            name="waitTime"
-            value={waitTime}
-            type="number"
-            onChange={(ev) => handlePointsChange(setWaitTime, ev)}
-          ></input>
-        </section> */}
           </article>
         </main>
         <article>
+          <div className="container w-full max-h-[1000px] overflow-auto mt-5 flex flex-row flex-wrap gap-7">
+            <section>
+              <label htmlFor="torchDO">
+                <span>torchDO: </span>
+                <input
+                  name="torchDO"
+                  value={torchDO}
+                  type="number"
+                  onChange={(ev) => handlePointsChange(setTorchDO, ev)}
+                ></input>
+              </label>
+
+              <label htmlFor="userToolTroch">
+                <span>userToolTroch: </span>
+                <input
+                  name="userToolTroch"
+                  value={userToolTorch}
+                  type="number"
+                  onChange={(ev) => handlePointsChange(setUserToolTorch, ev)}
+                ></input>
+              </label>
+
+              <label htmlFor="">
+                <span>isCO2</span>
+                <input
+                  name="isCO2"
+                  type="checkbox"
+                  checked={isCO2}
+                  onChange={() => setIsCO2((old) => !old)}
+                />
+              </label>
+
+              <label htmlFor="userToolCO2">
+                <span>userToolCO2: </span>
+                <input
+                  name="userToolCO2"
+                  value={userToolCO2}
+                  type="number"
+                  disabled={!isCO2}
+                  onChange={(ev) => handlePointsChange(setUserToolCO2, ev)}
+                ></input>
+              </label>
+
+              <label htmlFor="waitTime">
+                <span>waitTime: </span>
+                <input
+                  name="waitTime"
+                  value={waitTime}
+                  type="number"
+                  onChange={(ev) => handlePointsChange(setWaitTime, ev)}
+                ></input>
+              </label>
+            </section>
+          </div>
+
           <h1 className="text-3xl mt-5">Programa</h1>
           <p>/PROG {programName}</p>
           <p>/ATTR</p>
@@ -270,15 +411,11 @@ PAUSE_REQUEST	= 0`,
           <p>/APPL</p>
           <p>ARC Welding Equipment : 1,*,*,*,*;</p>
           <p>/MN</p>
-          {cubePoints.map((item, index) => {
-              return (
-                <p key={index}>{++index}: P{`[${index}] ${speedMMPerSec}mm/sec FINE`} ;</p>
-              );
-            })}
+          {printLines(false)}
           <p>/POS</p>
           <section className="max-full overflow-auto">
             {cubePoints.map((item, index) => {
-              return <Point key={index} order={++index} {...item} />;
+              return <Point key={index} {...item} />;
             })}
           </section>
           <p>/END</p>
