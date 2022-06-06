@@ -92,7 +92,7 @@ const Home: NextPage = () => {
     return codeHTML
   }
 
-  function printLines(isCO2: boolean) { 
+  function printLines() { 
     const linesHTML = generateHTMLLines(pointsArray) 
     return linesHTML;
   }
@@ -390,7 +390,7 @@ const Home: NextPage = () => {
           <p>/APPL</p>
           <p>ARC Welding Equipment : 1,*,*,*,*;</p>
           <p>/MN</p>
-          {printLines(false)}
+          {printLines()}
           <p>/POS</p>
           <section className="max-full overflow-auto">
             {cubePoints.map((item, index) => {
