@@ -15,7 +15,7 @@ export interface PointProps {
       <div>
         {`P[${order}]{
       GP1:
-     UF : 3, UT : 3,		CONFIG : 'N U T, 0, 0, 0',
+     UF : 1, UT : 1,		CONFIG : 'N U T, 0, 0, 0',
      X =  ${X}  mm,	Y =   ${Y}  mm,	Z =     ${Z}  mm,
      W =      ${W} deg,	P =     ${P} deg,	R =    ${R} deg
    };`}
