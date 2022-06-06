@@ -92,8 +92,7 @@ const Home: NextPage = () => {
     return codeHTML
   }
 
-  function printLines(isCO2: boolean) {
-    
+  function printLines(isCO2: boolean) { 
     const linesHTML = generateHTMLLines(pointsArray) 
     return linesHTML;
   }
@@ -101,8 +100,8 @@ const Home: NextPage = () => {
   useEffect(() => {
     function generatePoints(): GeneratePointProps[] {
       let heightOffset = Z;
-      let myArray = [] as GeneratePointProps[];
-      let testeArray = [] as Array<GeneratePointProps[]>;
+      let pointsArrayOfObjects = [] as GeneratePointProps[];
+      let linesArrayOfArraysOfPoints = [] as Array<GeneratePointProps[]>;
       let counter = 0;
       Array.from({
         length: totalLines,
@@ -196,13 +195,15 @@ const Home: NextPage = () => {
         );
 
         point.forEach((item) => {
-          myArray.push(item);
+          pointsArrayOfObjects.push(item);
         });
-        testeArray.push(point);
+
+        linesArrayOfArraysOfPoints.push(point);
       });
-      setPointsArray(testeArray);
-      console.log(pointsArray);
-      return myArray;
+      setPointsArray(linesArrayOfArraysOfPoints);
+      console.log(linesArrayOfArraysOfPoints);
+      console.log(pointsArrayOfObjects);
+      return pointsArrayOfObjects;
     }
 
     const newPoints = generatePoints();
