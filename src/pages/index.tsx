@@ -3,7 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { json } from "stream/consumers";
-import Input from "../components/Input";
+import Input, { InputProps } from "../components/Input";
 import Point, { PointProps } from "../components/Point";
 
 const Home: NextPage = () => {
@@ -35,6 +35,18 @@ const Home: NextPage = () => {
   const APPROACH_OFFSET = 50;
 
   type GeneratePointProps = PointProps;
+
+  const POINTS_INPUTS:InputProps[] = [
+    {displayName:"X", name:"X", value:X, type:"number",setFunction:setX, isDisabled:false, step:0.001},
+    {displayName:"Y", name:"Y", value:Y, type:"number",setFunction:setY, isDisabled:false, step:0.001},
+    {displayName:"Z", name:"Z", value:Z, type:"number",setFunction:setZ, isDisabled:false, step:0.001},
+    {displayName:"W", name:"P", value:R, type:"number",setFunction:setR, isDisabled:false, step:0.001},
+    {displayName:"P", name:"P", value:P, type:"number",setFunction:setP, isDisabled:false, step:0.001},
+    {displayName:"R", name:"R", value:R, type:"number",setFunction:setR, isDisabled:false, step:0.001},
+    {displayName:"Comprimento", name:"offset", value:offset, type:"number",setFunction:setOffset, isDisabled:false, min:0},
+    {displayName:"Altura do cordão", name:"lineHeight", value:lineHeight, type:"number",setFunction:setLineHeight, isDisabled:false, min:0},
+    {displayName:"Quantidade de camadas", name:"totalLines", value:totalLines, type:"number",setFunction:setTotalLines, isDisabled:false, min:0},
+  ]
 
   function handlePointsChange(
     setFunction:  React.Dispatch<React.SetStateAction<any>>,
@@ -215,91 +227,9 @@ const Home: NextPage = () => {
       <div className="wrapper">
         <main className="container w-full max-h-[1000px] overflow-auto mt-5 flex flex-row flex-wrap gap-7">
           <section>
-            <label htmlFor="X">
-              <span>X: </span>
-              <input
-                name="X"
-                value={X}
-                type="number"
-                onChange={(ev) => handlePointsChange(setX, ev)}
-              ></input>
-            </label>
-            <label htmlFor="Y">
-              <span>Y: </span>
-              <input
-                name="Y"
-                value={Y}
-                type="number"
-                onChange={(ev) => handlePointsChange(setY, ev)}
-              ></input>
-            </label>
-            <label htmlFor="Z">
-              <span>Z: </span>
-              <input
-                name="Z"
-                value={Z}
-                type="number"
-                onChange={(ev) => handlePointsChange(setZ, ev)}
-              ></input>
-            </label>
-
-            <label htmlFor="W">
-              <span>W: </span>
-              <input
-                name="W"
-                value={W}
-                type="number"
-                onChange={(ev) => handlePointsChange(setW, ev)}
-              ></input>
-            </label>
-            <label htmlFor="P">
-              <span>P: </span>
-              <input
-                name="P"
-                value={P}
-                type="number"
-                onChange={(ev) => handlePointsChange(setP, ev)}
-              ></input>
-            </label>
-            <label htmlFor="R">
-              <span>R: </span>
-              <input
-                name="R"
-                value={R}
-                type="number"
-                onChange={(ev) => handlePointsChange(setR, ev)}
-              ></input>
-            </label>
-
-            <label htmlFor="offset">
-              <span>Comprimento: </span>
-              <input
-                name="offset"
-                value={offset}
-                type="number"
-                onChange={(ev) => handlePointsChange(setOffset, ev)}
-              ></input>
-            </label>
-
-            <label htmlFor="lineHeight">
-              <span>Altura do cordão: </span>
-              <input
-                name="lineHeight"
-                value={lineHeight}
-                type="number"
-                onChange={(ev) => handlePointsChange(setLineHeight, ev)}
-              ></input>
-            </label>
-
-            <label htmlFor="totalLines">
-              <span>Quantidade de camadas: </span>
-              <input
-                name="totalLines"
-                value={totalLines}
-                type="number"
-                onChange={(ev) => handlePointsChange(setTotalLines, ev)}
-              ></input>
-            </label>
+           {POINTS_INPUTS.map(item => {
+             return <Input {...item} />
+           })}
 
             <span>Altura final: {totalLines * lineHeight}mm</span>
           </section>
